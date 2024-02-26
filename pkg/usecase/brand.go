@@ -20,6 +20,9 @@ func NewBrandUseCase(repo repo.BrandRepository) interfaces.BrandUseCase {
 }
 
 func (br *BrandUseCase) AddBrand(Brand models.AddBrand) (domain.Brand, error) {
+	if Brand.BrandName == "" {
+		return domain.Brand{},errors.New("brand name cannot be empty")
+	}
 	Exist, err := br.repo.CheckBrandExist(Brand.BrandName)
 	if err != nil {
 		return domain.Brand{}, err
@@ -38,6 +41,9 @@ func (br *BrandUseCase) AddBrand(Brand models.AddBrand) (domain.Brand, error) {
 }
 
 func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Brand, error) {
+	if EditBrand.BrandName == "" {
+		return domain.Brand{},errors.New("brand name cannot be empty")
+	}
 
 	Exist, err := br.repo.CheckBrandExist(EditBrand.BrandName)
 	if err != nil {
@@ -57,6 +63,14 @@ func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Br
 }
 
 func (br *BrandUseCase) DeleteBrand(id int) error {
+	exist,err:=br.repo.CheckBrandExistByID(id)
+	if err!=nil{
+		return err
+	}
+
+	if !exist{
+		return errors.New("brand with this id does not exist")
+	}
 	if err := br.repo.DeleteBrand(id); err != nil {
 		return err
 	}
