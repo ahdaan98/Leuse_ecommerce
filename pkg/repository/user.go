@@ -139,7 +139,7 @@ func (i *userDatabase) GetUserPassword(email string) (string, error) {
 	return password, nil
 }
 
-func (i *userDatabase) AddAddress(userID int, address models.AddAddress) error{
+func (i *userDatabase) AddAddress(userID int, address models.AddAddress) error {
 	err := i.DB.Exec(`
 		INSERT INTO addresses (user_id, name, house_name, street, city, state, phone, pin)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8 )`,
@@ -151,7 +151,7 @@ func (i *userDatabase) AddAddress(userID int, address models.AddAddress) error{
 	return nil
 }
 
-func (i *userDatabase) GetAddresses(id int) ([]domain.Address, error){
+func (i *userDatabase) GetAddresses(id int) ([]domain.Address, error) {
 
 	var addresses []domain.Address
 
@@ -163,13 +163,13 @@ func (i *userDatabase) GetAddresses(id int) ([]domain.Address, error){
 
 }
 
-func (i *userDatabase) CheckIfFirstAddress(id int) bool{
+func (i *userDatabase) CheckIfFirstAddress(id int) bool {
 	var count int
 
 	if err := i.DB.Raw("select count(*) from addresses where user_id=$1", id).Scan(&count).Error; err != nil {
 		return false
 	}
-	
+
 	// if count is greater than 0 that means the address already exist
 	return count > 0
 }
@@ -245,6 +245,36 @@ func (ad *userDatabase) FindCategory(inventoryID int) (int, error) {
 	return categoryID, nil
 }
 
+func (ad *userDatabase) FindBrand(inventory_id int) (int, error) {
+	var brandID int
+
+	if err := ad.DB.Raw("SELECT brand_id FROM inventories WHERE id = ?", inventory_id).Scan(&brandID).Error; err != nil {
+		return 0, err
+	}
+
+	return brandID, nil
+}
+
+func (ad *userDatabase) FindCategoryName(category_id int) (string, error) {
+	var category string
+
+	if err := ad.DB.Raw("SELECT  category_name FROM categories WHERE id = ?", category_id).Scan(&category).Error; err != nil {
+		return "", err
+	}
+
+	return category, nil
+}
+
+func (ad *userDatabase) FindBrandName(brand_id int) (string, error) {
+	var brand string
+
+	if err := ad.DB.Raw("SELECT brand_name FROM brands WHERE id = ?", brand_id).Scan(&brand).Error; err != nil {
+		return "", err
+	}
+
+	return brand, nil
+}
+
 func (i *userDatabase) FindStock(id int) (int, error) {
 	var stock int
 	err := i.DB.Raw("SELECT stock FROM inventories WHERE id = ?", id).Scan(&stock).Error
@@ -265,17 +295,16 @@ func (ad *userDatabase) RemoveFromCart(cart, inventory int) error {
 
 }
 func (ad *userDatabase) UpdateQuantity(id, invID, qty int) error {
-		query := `
+	query := `
         UPDATE line_items
         SET quantity = $1
         WHERE cart_id = $2 AND inventory_id = $3
         `
 
-		result := ad.DB.Exec(query, qty, id, invID)
-		if result.Error != nil {
-			return result.Error
-		}
-	
+	result := ad.DB.Exec(query, qty, id, invID)
+	if result.Error != nil {
+		return result.Error
+	}
 
 	return nil
 }

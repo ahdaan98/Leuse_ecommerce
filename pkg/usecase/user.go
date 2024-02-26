@@ -207,13 +207,40 @@ func (u *UserUseCase) GetCart(id int) (models.GetCartResponse, error) {
 		price = append(price, q)
 	}
 
-	var categories []int
+	var categoryID []int
 	for i := range products {
 		c, err := u.repo.FindCategory(products[i])
 		if err != nil {
 			return models.GetCartResponse{}, errors.New(InternalError)
 		}
-		categories = append(categories, c)
+		categoryID = append(categoryID, c)
+	}
+
+	var brandID []int
+	for i := range products {
+		c, err := u.repo.FindBrand(products[i])
+		if err != nil {
+			return models.GetCartResponse{}, errors.New(InternalError)
+		}
+		brandID = append(brandID, c)
+	}
+
+	var category []string
+	for i := range products {
+		c, err := u.repo.FindCategoryName(categoryID[i])
+		if err != nil {
+			return models.GetCartResponse{}, errors.New(InternalError)
+		}
+		category = append(category, c)
+	}
+
+	var brand []string
+	for i := range products {
+		c, err := u.repo.FindBrandName(brandID[i])
+		if err != nil {
+			return models.GetCartResponse{}, errors.New(InternalError)
+		}
+		brand = append(brand, c)
 	}
 
 	var getcart []models.GetCart
@@ -221,7 +248,10 @@ func (u *UserUseCase) GetCart(id int) (models.GetCartResponse, error) {
 		var get models.GetCart
 		get.ProductID = products[i]
 		get.ProductName = product_names[i]
-		get.CategoryID = uint(categories[i])
+		get.BrandID = uint(brandID[i])
+		get.Brand = brand[i]
+		get.CategoryID = uint(categoryID[i])
+		get.Category = category[i]
 		get.Quantity = quantity[i]
 		get.Price = int(price[i])
 		get.Total = (price[i]) * float64(quantity[i])
