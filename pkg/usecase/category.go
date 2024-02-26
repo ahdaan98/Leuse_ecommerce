@@ -20,8 +20,8 @@ func NewCategoryUseCase(repo repo.CategoryRepository) interfaces.CategoryUseCase
 }
 
 func (cat *CategoryUseCase) AddCategory(category models.AddCategory) (domain.Category, error) {
-	if category.CategoryName == ""{
-		return domain.Category{},errors.New("category name cannot be empty")
+	if category.CategoryName == "" {
+		return domain.Category{}, errors.New("category name cannot be empty")
 	}
 
 	Exist, err := cat.repo.CheckCategoryExist(category.CategoryName)
@@ -43,16 +43,25 @@ func (cat *CategoryUseCase) AddCategory(category models.AddCategory) (domain.Cat
 
 func (cat *CategoryUseCase) EditCategory(EditCategory models.EditCategory, id int) (domain.Category, error) {
 	if EditCategory.CategoryName == "" {
-		return domain.Category{},errors.New("category name cannot be empty")
+		return domain.Category{}, errors.New("category name cannot be empty")
 	}
 
-	exist,err:=cat.repo.CheckCategoryExistByID(id)
-	if err!=nil{
-		return domain.Category{},err
+	exist, err := cat.repo.CheckCategoryExistByID(id)
+	if err != nil {
+		return domain.Category{}, err
 	}
 
-	if !exist{
-		return domain.Category{},errors.New("category with this id not exist")
+	cate, err := cat.repo.GetCategoryByID(id)
+	if err != nil {
+		return domain.Category{}, err
+	}
+
+	if !exist {
+		return domain.Category{}, errors.New("category with this id not exist")
+	}
+
+	if cate.CategoryName == EditCategory.CategoryName {
+		return domain.Category{}, errors.New("category name is same with the previous one")
 	}
 
 	Exist, err := cat.repo.CheckCategoryExist(EditCategory.CategoryName)
@@ -101,17 +110,17 @@ func (cat *CategoryUseCase) ListCategories() ([]domain.Category, error) {
 func (i *CategoryUseCase) FilterByCategory(categoryID int) ([]models.FilterByCategoryResponse, string, error) {
 	Exist, err := i.repo.CheckCategoryExistByID(categoryID)
 	if err != nil {
-		return []models.FilterByCategoryResponse{},"", err
+		return []models.FilterByCategoryResponse{}, "", err
 	}
 
 	if !Exist {
-		return []models.FilterByCategoryResponse{},"", errors.New("category does not exist with this id")
+		return []models.FilterByCategoryResponse{}, "", errors.New("category does not exist with this id")
 	}
 
 	cat, catName, err := i.repo.FilterByCategory(categoryID)
 
 	if err != nil {
-		return []models.FilterByCategoryResponse{},"", err
+		return []models.FilterByCategoryResponse{}, "", err
 	}
 
 	return cat, catName, nil

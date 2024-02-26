@@ -10,6 +10,7 @@ type CategoryRepository interface {
 	CheckCategoryExist(categoryName string) (bool, error)
 	CheckCategoryExistByID(id int) (bool, error)
 	EditCategory(EditCategory models.EditCategory, id int) (domain.Category, error)
+	GetCategoryByID(id int) (domain.Category, error)
 	DeleteCategory(id int) error
 	GetCategories() ([]domain.Category, error)
 	FilterByCategory(categoryID int) ([]models.FilterByCategoryResponse, string, error)

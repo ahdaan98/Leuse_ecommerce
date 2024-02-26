@@ -108,6 +108,18 @@ func (cat *CategoryRepository) DeleteCategory(id int) error {
 	return nil
 }
 
+func (cat *CategoryRepository) GetCategoryByID(id int) (domain.Category, error) {
+	var category domain.Category
+
+	query := `select * from categories where id = ?`
+
+	if err := cat.DB.Raw(query, id).Scan(&category).Error; err != nil {
+		return domain.Category{},err
+	}
+
+	return category,nil
+}
+
 func (cat *CategoryRepository) GetCategories() ([]domain.Category, error) {
 	var categoryLists []domain.Category
 
