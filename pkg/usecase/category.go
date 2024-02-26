@@ -20,6 +20,9 @@ func NewCategoryUseCase(repo repo.CategoryRepository) interfaces.CategoryUseCase
 }
 
 func (cat *CategoryUseCase) AddCategory(category models.AddCategory) (domain.Category, error) {
+	if category.CategoryName == ""{
+		return domain.Category{},errors.New("category name cannot be empty")
+	}
 
 	Exist, err := cat.repo.CheckCategoryExist(category.CategoryName)
 	if err != nil {
@@ -39,6 +42,18 @@ func (cat *CategoryUseCase) AddCategory(category models.AddCategory) (domain.Cat
 }
 
 func (cat *CategoryUseCase) EditCategory(EditCategory models.EditCategory, id int) (domain.Category, error) {
+	if EditCategory.CategoryName == "" {
+		return domain.Category{},errors.New("category name cannot be empty")
+	}
+
+	exist,err:=cat.repo.CheckCategoryExistByID(id)
+	if err!=nil{
+		return domain.Category{},err
+	}
+
+	if !exist{
+		return domain.Category{},errors.New("category with this id not exist")
+	}
 
 	Exist, err := cat.repo.CheckCategoryExist(EditCategory.CategoryName)
 	if err != nil {
