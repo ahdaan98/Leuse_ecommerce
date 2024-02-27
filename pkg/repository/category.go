@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ahdaan98/pkg/domain"
 	interfaces "github.com/ahdaan98/pkg/repository/interface"
@@ -120,12 +121,14 @@ func (cat *CategoryRepository) GetCategoryByID(id int) (domain.Category, error) 
 	return category,nil
 }
 
-func (cat *CategoryRepository) GetCategories() ([]domain.Category, error) {
+func (cat *CategoryRepository) GetCategories(page, per_product int) ([]domain.Category, error) {
 	var categoryLists []domain.Category
 
-	query := `
-	SELECT * FROM categories
-	`
+	offset := (page - 1) * per_product
+
+	query := fmt.Sprintf(`
+	SELECT * FROM categories LIMIT %d OFFSET %d
+	`,per_product,offset)
 
 	if err := cat.DB.Raw(query).Scan(&categoryLists).Error; err != nil {
 		return []domain.Category{}, err
@@ -134,17 +137,20 @@ func (cat *CategoryRepository) GetCategories() ([]domain.Category, error) {
 	return categoryLists, nil
 }
 
-func (cat *CategoryRepository) FilterByCategory(categoryID int) ([]models.FilterByCategoryResponse, string, error) {
+func (cat *CategoryRepository) FilterByCategory(categoryID,page, per_product int) ([]models.FilterByCategoryResponse, string, error) {
 
 	var products []models.FilterByCategoryResponse
 
-	query := `
+	offset := (page - 1) * per_product
+
+	query := fmt.Sprintf(`
 	SELECT i.id AS product_id, i.product_name,i.brand_id, b.brand_name AS brand, i.stock, i.price
 	FROM inventories i
 	INNER JOIN categories c ON i.category_id = c.id
 	INNER JOIN brands b ON i.brand_id = b.id
 	WHERE c.id = ?
-	`
+	LIMIT %d OFFSET %d
+    `,per_product,offset)
 
 	if err := cat.DB.Raw(query, categoryID).Scan(&products).Error; err != nil {
 		return []models.FilterByCategoryResponse{}, "", err

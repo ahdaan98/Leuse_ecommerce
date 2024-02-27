@@ -91,7 +91,11 @@ func (ca *CategoryHandler) DeleteCategory(c *gin.Context) {
 }
 
 func (ca *CategoryHandler) GetCategories(c *gin.Context) {
-	categories, err := ca.usecase.ListCategories()
+	page, _ := strconv.Atoi(c.Query("page"))
+	per_product, _ := strconv.Atoi(c.Query("per_product"))
+
+
+	categories, err := ca.usecase.ListCategories(page, per_product)
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "failed to retrieve all categories...", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
@@ -106,13 +110,16 @@ func (ca *CategoryHandler) FilterByCategory(c *gin.Context) {
 	idstr := c.Query("id")
 	id, err := strconv.Atoi(idstr)
 
+	page, _ := strconv.Atoi(c.Query("page"))
+	per_product, _ := strconv.Atoi(c.Query("per_product"))
+
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "error in id", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 
-	products, name, err := ca.usecase.FilterByCategory(id)
+	products, name, err := ca.usecase.FilterByCategory(id,page, per_product)
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "failed to get product under this category", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)

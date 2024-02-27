@@ -98,8 +98,8 @@ func (cat *CategoryUseCase) DeleteCategory(id int) error {
 	return nil
 }
 
-func (cat *CategoryUseCase) ListCategories() ([]domain.Category, error) {
-	Categories, err := cat.repo.GetCategories()
+func (cat *CategoryUseCase) ListCategories(page, per_product int) ([]domain.Category, error) {
+	Categories, err := cat.repo.GetCategories(page, per_product)
 	if err != nil {
 		return []domain.Category{}, err
 	}
@@ -107,7 +107,7 @@ func (cat *CategoryUseCase) ListCategories() ([]domain.Category, error) {
 	return Categories, nil
 }
 
-func (i *CategoryUseCase) FilterByCategory(categoryID int) ([]models.FilterByCategoryResponse, string, error) {
+func (i *CategoryUseCase) FilterByCategory(categoryID,page, per_product int) ([]models.FilterByCategoryResponse, string, error) {
 	Exist, err := i.repo.CheckCategoryExistByID(categoryID)
 	if err != nil {
 		return []models.FilterByCategoryResponse{}, "", err
@@ -117,7 +117,7 @@ func (i *CategoryUseCase) FilterByCategory(categoryID int) ([]models.FilterByCat
 		return []models.FilterByCategoryResponse{}, "", errors.New("category does not exist with this id")
 	}
 
-	cat, catName, err := i.repo.FilterByCategory(categoryID)
+	cat, catName, err := i.repo.FilterByCategory(categoryID,page, per_product)
 
 	if err != nil {
 		return []models.FilterByCategoryResponse{}, "", err

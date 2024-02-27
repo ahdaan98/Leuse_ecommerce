@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	interfaces "github.com/ahdaan98/pkg/repository/interface"
 	"github.com/ahdaan98/pkg/utils/models"
 	"gorm.io/gorm"
@@ -79,12 +81,15 @@ func (inv *InventoryRepostiory) CheckInventoryExistByID(id int) (bool, error) {
 func (inv *InventoryRepostiory) ListProducts(page, per_product int) ([]models.InventoryResponse, error) {
 	var productLists []models.InventoryResponse
 
-	query := `
+	offset := (page - 1) * per_product
+
+	query := fmt.Sprintf(`
 	SELECT i.id AS product_id, i.product_name, i.category_id, c.category_name AS category, i.brand_id, b.brand_name AS brand, i.stock, i.price
    FROM inventories i
    INNER JOIN categories c ON i.category_id = c.id
    INNER JOIN brands b ON i.brand_id = b.id
-  `
+   LIMIT %d OFFSET %d
+  `,per_product,offset)
 
 	err := inv.DB.Raw(query).Scan(&productLists).Error
 	if err != nil {

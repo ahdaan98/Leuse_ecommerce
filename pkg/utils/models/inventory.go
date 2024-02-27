@@ -93,7 +93,6 @@ type FilterByCategoryResponse struct {
 	ProductName string  `json:"product_name"`
 	BrandID     uint    `json:"brand_id"`
 	Brand       string  `json:"brand"`
-	Image       string  `json:"image"`
 	Stock       int     `json:"stock"`
 	Price       float64 `json:"price"`
 }
@@ -103,7 +102,6 @@ type FilterByBrandResponse struct {
 	ProductName string  `json:"product_name"`
 	CategoryID  uint    `json:"category_id"`
 	Category    string  `json:"category"`
-	Image       string  `json:"image"`
 	Stock       int     `json:"stock"`
 	Price       float64 `json:"price"`
 }
