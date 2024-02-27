@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/ahdaan98/pkg/domain"
 	interfaces "github.com/ahdaan98/pkg/repository/interface"
 	"github.com/ahdaan98/pkg/utils/models"
@@ -121,17 +123,20 @@ func (br *BrandRepository) GetBrands() ([]domain.Brand, error) {
 	return brandList, nil
 }
 
-func (br *BrandRepository) FilterByBrand(id int) ([]models.FilterByBrandResponse, string, error) {
+func (br *BrandRepository) FilterByBrand(id, page, per_product int) ([]models.FilterByBrandResponse, string, error) {
 
 	var products []models.FilterByBrandResponse
 
-	query := `
+	offset := (page - 1) * per_product
+
+	query := fmt.Sprintf(`
 	SELECT i.id AS product_id, i.product_name, i.category_id, c.category_name AS category, i.stock, i.Price
 	FROM inventories i
 	INNER JOIN categories c ON i.category_id = c.id
 	INNER JOIN brands b ON i.brand_id = b.id
 	WHERE i.brand_id = ?
-	`
+	LIMIT %d OFFSET %d
+    `, per_product, offset)
 	if err := br.DB.Raw(query, id).Scan(&products).Error; err != nil {
 		return []models.FilterByBrandResponse{}, "", err
 	}

@@ -10,5 +10,5 @@ type BrandUseCase interface {
 	EditBrand(EditBrand models.EditBrand, id int) (domain.Brand, error)
 	DeleteBrand(id int) error
 	ListBrands() ([]domain.Brand, error)
-	FilterByBrand(BrandID int) ([]models.FilterByBrandResponse, string, error)
+	FilterByBrand(BrandID,page,per_product int) ([]models.FilterByBrandResponse, string, error)
 }

@@ -11,20 +11,20 @@ import (
 )
 
 type BrandUseCase struct {
-	repo repo.BrandRepository
+	repo   repo.BrandRepository
 	helper helper.Helper
 }
 
 func NewBrandUseCase(repo repo.BrandRepository, helper helper.Helper) interfaces.BrandUseCase {
 	return &BrandUseCase{
-		repo: repo,
+		repo:   repo,
 		helper: helper,
 	}
 }
 
 func (br *BrandUseCase) AddBrand(Brand models.AddBrand) (domain.Brand, error) {
 	if Brand.BrandName == "" {
-		return domain.Brand{},errors.New("brand name cannot be empty")
+		return domain.Brand{}, errors.New("brand name cannot be empty")
 	}
 
 	tr := br.helper.ContainOnlyLetters(Brand.BrandName)
@@ -40,7 +40,6 @@ func (br *BrandUseCase) AddBrand(Brand models.AddBrand) (domain.Brand, error) {
 	if len(Brand.BrandName) > 6 {
 		return domain.Brand{}, errors.New("brand name can contain upto 6 characters only")
 	}
-
 
 	Exist, err := br.repo.CheckBrandExist(Brand.BrandName)
 	if err != nil {
@@ -61,9 +60,12 @@ func (br *BrandUseCase) AddBrand(Brand models.AddBrand) (domain.Brand, error) {
 
 func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Brand, error) {
 	if EditBrand.BrandName == "" {
-		return domain.Brand{},errors.New("brand name cannot be empty")
+		return domain.Brand{}, errors.New("brand name cannot be empty")
 	}
 
+	if id <= 0 {
+		return domain.Brand{}, errors.New("check values properly, id cannot be negative or zero")
+	}
 
 	Exist, err := br.repo.CheckBrandExist(EditBrand.BrandName)
 	if err != nil {
@@ -88,7 +90,6 @@ func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Br
 		return domain.Brand{}, errors.New("brand name can contain upto 6 characters only")
 	}
 
-
 	brand, err := br.repo.EditBrand(EditBrand, id)
 	if err != nil {
 		return domain.Brand{}, err
@@ -98,12 +99,15 @@ func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Br
 }
 
 func (br *BrandUseCase) DeleteBrand(id int) error {
-	exist,err:=br.repo.CheckBrandExistByID(id)
-	if err!=nil{
+	if id <= 0 {
+		return errors.New("check values properly, id cannot be negative or zero")
+	}
+	exist, err := br.repo.CheckBrandExistByID(id)
+	if err != nil {
 		return err
 	}
 
-	if !exist{
+	if !exist {
 		return errors.New("brand with this id does not exist")
 	}
 	if err := br.repo.DeleteBrand(id); err != nil {
@@ -122,7 +126,14 @@ func (br *BrandUseCase) ListBrands() ([]domain.Brand, error) {
 	return brands, nil
 }
 
-func (br *BrandUseCase) FilterByBrand(BrandID int) ([]models.FilterByBrandResponse, string, error) {
+func (br *BrandUseCase) FilterByBrand(BrandID, page, per_product int) ([]models.FilterByBrandResponse, string, error) {
+	if BrandID < 1 || page < 1 || per_product < 1 {
+		return []models.FilterByBrandResponse{}, "", errors.New("check values properly, id cannot be negative")
+	}
+
+	if BrandID == 0 || page == 0 || per_product == 0 {
+		return []models.FilterByBrandResponse{}, "", errors.New("check values properly, id cannot be zero")
+	}
 	Exist, err := br.repo.CheckBrandExistByID(BrandID)
 	if err != nil {
 		return []models.FilterByBrandResponse{}, "", err
@@ -132,7 +143,7 @@ func (br *BrandUseCase) FilterByBrand(BrandID int) ([]models.FilterByBrandRespon
 		return []models.FilterByBrandResponse{}, "", errors.New("brand does not exist with this id")
 	}
 
-	products, brandName, err := br.repo.FilterByBrand(BrandID)
+	products, brandName, err := br.repo.FilterByBrand(BrandID, page, per_product)
 	if err != nil {
 		return []models.FilterByBrandResponse{}, "", err
 	}

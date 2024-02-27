@@ -12,5 +12,5 @@ type BrandRepository interface {
 	EditBrand(EditBrand models.EditBrand, id int) (domain.Brand, error)
 	DeleteBrand(id int) error
 	GetBrands() ([]domain.Brand, error)
-	FilterByBrand(id int) ([]models.FilterByBrandResponse, string, error)
+	FilterByBrand(id,page, per_product int) ([]models.FilterByBrandResponse, string, error)
 }

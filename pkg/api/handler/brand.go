@@ -106,13 +106,16 @@ func (br *BrandHandler) FilterByBrand(c *gin.Context) {
 	idstr := c.Query("id")
 	id, err := strconv.Atoi(idstr)
 
+	page, _ := strconv.Atoi(c.Query("page"))
+	per_product, _ := strconv.Atoi(c.Query("per_product"))
+
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "error in id", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 
-	products, name, err := br.usecase.FilterByBrand(id)
+	products, name, err := br.usecase.FilterByBrand(id, page, per_product)
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "failed to get products under this brand", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
