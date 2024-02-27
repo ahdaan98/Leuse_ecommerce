@@ -20,6 +20,11 @@ func NewInventoryUseCase(repo repo.InventoryRepository) usecase.InventoryUseCase
 }
 
 func (i *InventoryUseCase) AddInventory(inventory models.AddInventory) (models.InventoryResponse, error) {
+
+	if inventory.Stock <= 0 || inventory.BrandID <= 0 || inventory.CategoryID <= 0 || inventory.Price <= 0 {
+		return models.InventoryResponse{}, errors.New("check values properly, id cannot be negative or zero")
+	}
+
 	Exist, err := i.repository.CheckInventoryExist(inventory.ProductName)
 	if err != nil || Exist {
 		return models.InventoryResponse{}, err
@@ -41,6 +46,9 @@ func (i *InventoryUseCase) ListProducts(page, per_product int) ([]models.Invento
 }
 
 func (i *InventoryUseCase) EditInventory(inventory models.EditInventory, id int) (models.InventoryResponse, error) {
+	if inventory.BrandID <= 0 || inventory.CategoryID <= 0 || inventory.Price <= 0 || id <=0 {
+		return models.InventoryResponse{}, errors.New("check values properly, id cannot be negative or zero")
+	}
 	Exist, err := i.repository.CheckInventoryExist(inventory.ProductName)
 	if err != nil {
 		return models.InventoryResponse{}, err
@@ -68,6 +76,10 @@ func (i *InventoryUseCase) EditInventory(inventory models.EditInventory, id int)
 }
 
 func (i *InventoryUseCase) UpdateInventory(inventory models.UpdateInventory, id int) (models.InventoryResponse, error) {
+	if inventory.Stock <= 0 || id <= 0{
+		return models.InventoryResponse{},errors.New("check values properly, value cannot be negative or zero")
+	}
+
 	Exist, err := i.repository.CheckInventoryExistByID(id)
 	if err != nil {
 		return models.InventoryResponse{}, err
@@ -104,6 +116,10 @@ func (i *InventoryUseCase) ShowIndividualProduct(productID int) (models.Inventor
 }
 
 func (i *InventoryUseCase) CheckStock(productID int) (models.CheckStockResponse, error) {
+	if productID <= 0{
+		return models.CheckStockResponse{},errors.New("check value properly, it cannot be negative or zero")
+	}
+	
 	Exist, err := i.repository.CheckInventoryExistByID(productID)
 	if err != nil {
 		return models.CheckStockResponse{}, err
@@ -126,38 +142,38 @@ func (i *InventoryUseCase) AddImage(id int, image string) error {
 }
 
 func (uc *InventoryUseCase) ListProductsWithImages() ([]models.InventoryResponseWithImages, error) {
-	cfg,_:=config.LoadEnvVariables()
-    productList, err := uc.repository.ListProductsWithImages()
-    if err != nil {
-        return nil, err
-    }
-    var responseList []models.InventoryResponseWithImages
-    // Iterate over the product list and collect images
-    for _, product := range productList {
-        images, err := uc.repository.GetImages(int(product.ProductID))
-        if err != nil {
-            return nil, err
-        }
+	cfg, _ := config.LoadEnvVariables()
+	productList, err := uc.repository.ListProductsWithImages()
+	if err != nil {
+		return nil, err
+	}
+	var responseList []models.InventoryResponseWithImages
+	// Iterate over the product list and collect images
+	for _, product := range productList {
+		images, err := uc.repository.GetImages(int(product.ProductID))
+		if err != nil {
+			return nil, err
+		}
 
-        var urls []string
-        for _, image := range images {
-            url := "http://localhost:"+cfg.PORT+"/admin/uploads/" + image
-            urls = append(urls, url)
-        }
+		var urls []string
+		for _, image := range images {
+			url := "http://localhost:" + cfg.PORT + "/admin/uploads/" + image
+			urls = append(urls, url)
+		}
 
-        response := models.InventoryResponseWithImages{
-            ProductID:   product.ProductID,
-            ProductName: product.ProductName,
-            CategoryID:  product.CategoryID,
-            Category:    product.Category,
-            BrandID:     product.BrandID,
-            Brand:       product.Brand,
-            Stock:       product.Stock,
-            Price:       product.Price,
-            Images:      urls,
-        }
-        responseList = append(responseList, response)
-    }
+		response := models.InventoryResponseWithImages{
+			ProductID:   product.ProductID,
+			ProductName: product.ProductName,
+			CategoryID:  product.CategoryID,
+			Category:    product.Category,
+			BrandID:     product.BrandID,
+			Brand:       product.Brand,
+			Stock:       product.Stock,
+			Price:       product.Price,
+			Images:      urls,
+		}
+		responseList = append(responseList, response)
+	}
 
-    return responseList, nil
+	return responseList, nil
 }
