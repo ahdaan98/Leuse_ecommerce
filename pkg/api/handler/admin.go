@@ -77,7 +77,7 @@ func (ad *AdminHandler) BlockUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Query("id"))
 	err:=ad.usecase.Blockuser(id)
 	if err != nil {
-		errRes := response.ClientResponse(http.StatusBadRequest, "failed to block", nil, err)
+		errRes := response.ClientResponse(http.StatusBadRequest, "failed to block", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
@@ -90,7 +90,7 @@ func (ad *AdminHandler) UnBlockUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Query("id"))
 	err:=ad.usecase.UnBlockUser(id)
 	if err != nil {
-		errRes := response.ClientResponse(http.StatusBadRequest, "failed to block", nil, err)
+		errRes := response.ClientResponse(http.StatusBadRequest, "failed to block", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}

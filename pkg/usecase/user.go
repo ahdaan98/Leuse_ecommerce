@@ -269,6 +269,15 @@ func (u *UserUseCase) GetCart(id int) (models.GetCartResponse, error) {
 
 func (i *UserUseCase) RemoveFromCart(userID, inventory int) error {
 
+	exist,err:=i.inventoryRepository.CheckInventoryExistByID(inventory)
+	if err!=nil{
+		return err
+	}
+
+	if !exist {
+		return errors.New("inventory with id does not exist")
+	} 
+
 	cart, err := i.repo.GetCartID(userID)
 	if err != nil {
 		return err
@@ -284,6 +293,10 @@ func (i *UserUseCase) RemoveFromCart(userID, inventory int) error {
 }
 
 func (i *UserUseCase) UpdateQuantity(id, inv, qty int) error {
+
+	if id <= 0 || inv <= 0 || qty <=0 {
+		return errors.New("check values properly, values cannot be negative or zero")
+	}
 
 	stock, err := i.inventoryRepository.CheckStock(inv)
 	if err != nil {
@@ -317,9 +330,13 @@ func (i *UserUseCase) ChangePassword(id int, old string, password string, repass
 	if old != userPassword {
 		return errors.New("please enter correct password")
 	}
-
 	if password != repassword {
 		return errors.New("passwords does not match")
+	}
+
+	err=i.helper.ValidatePassword(password,repassword)
+	if err!=nil{
+		return err
 	}
 
 	return i.repo.ChangePassword(id, string(password))

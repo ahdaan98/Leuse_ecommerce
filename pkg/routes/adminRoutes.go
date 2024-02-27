@@ -21,8 +21,8 @@ func AdminRoutes(engine *gin.RouterGroup, categoryHandler *handler.CategoryHandl
 		{
 			user.GET("", adminHandler.GetUsers)
 			user.GET("/:id", adminHandler.GetUserByID)
-			user.PUT("/:id/block", adminHandler.BlockUser)
-			user.PUT("/:id/unblock", adminHandler.UnBlockUser)
+			user.PUT("/block", adminHandler.BlockUser)
+			user.PUT("/unblock", adminHandler.UnBlockUser)
 		}
 		inventory := engine.Group("/products")
 		{

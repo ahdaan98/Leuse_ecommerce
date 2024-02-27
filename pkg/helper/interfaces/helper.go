@@ -17,4 +17,5 @@ type Helper interface {
 	ValidatePassword(pass string,cfm string) error
 	ValidateName(name string) error
 	ValidateEmail(email string) error
+	ContainOnlyLetters(Stg string) bool
 }

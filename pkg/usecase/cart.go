@@ -1,10 +1,10 @@
 package usecase
 
 import (
+	"errors"
 	interfaces "github.com/ahdaan98/pkg/repository/interface"
 	services "github.com/ahdaan98/pkg/usecase/interface"
 	"github.com/ahdaan98/pkg/utils/models"
-	"errors"
 )
 
 type cartUseCase struct {
@@ -24,6 +24,14 @@ func NewCartUseCase(repo interfaces.CartRepository, inventoryRepo interfaces.Inv
 }
 
 func (i *cartUseCase) AddToCart(userID, inventoryID, qty int) error {
+	if userID < 1 || inventoryID < 1 || qty < 1 {
+		return errors.New("check id properly, it cannot negative")
+	}
+
+	if userID == 0 || inventoryID == 0 || qty == 0 {
+		return errors.New("check id properly, it cannot zero")
+	}
+	
 	cart_id, err := i.repo.GetCartId(userID)
 	if err != nil {
 		return errors.New("some error in geting user cart")
