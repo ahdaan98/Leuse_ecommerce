@@ -30,7 +30,7 @@ func (cat *CategoryUseCase) AddCategory(category models.AddCategory) (domain.Cat
 	tr := cat.helper.ContainOnlyLetters(category.CategoryName)
 
 	if !tr {
-		return domain.Category{}, errors.New("category name cannot containg numbers")
+		return domain.Category{}, errors.New("category name can only contain letters")
 	}
 
 	if len(category.CategoryName) < 4 {
@@ -72,10 +72,15 @@ func (cat *CategoryUseCase) EditCategory(EditCategory models.EditCategory, id in
 		return domain.Category{}, err
 	}
 
+	
+	if !exist {
+		return domain.Category{}, errors.New("category with this id not exist")
+	}
+
 	tr := cat.helper.ContainOnlyLetters(EditCategory.CategoryName)
 
 	if !tr {
-		return domain.Category{}, errors.New("category name cannot containg numbers")
+		return domain.Category{}, errors.New("category name can only contain letters")
 	}
 
 	if len(EditCategory.CategoryName) < 4 {
@@ -91,9 +96,6 @@ func (cat *CategoryUseCase) EditCategory(EditCategory models.EditCategory, id in
 		return domain.Category{}, err
 	}
 
-	if !exist {
-		return domain.Category{}, errors.New("category with this id not exist")
-	}
 
 	if cate.CategoryName == EditCategory.CategoryName {
 		return domain.Category{}, errors.New("category name is same with the previous one")
@@ -117,6 +119,9 @@ func (cat *CategoryUseCase) EditCategory(EditCategory models.EditCategory, id in
 }
 
 func (cat *CategoryUseCase) DeleteCategory(id int) error {
+	if id <=0 {
+		return errors.New("check value properly, id cannot be negative or zero")
+	}
 	Exist, err := cat.repo.CheckCategoryExistByID(id)
 	if err != nil {
 		return err

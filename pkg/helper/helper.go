@@ -154,9 +154,9 @@ func (h *helper) ValidatePin(pin string) bool {
 
 }
 
-func (h *helper) ContainOnlyLetters(Stg string) bool{
-	match, _ := regexp.MatchString(`^[a-zA-Z]+$"`, Stg)
-	return match
+func (h *helper) ContainOnlyLetters(Stg string) bool {
+    match, _ := regexp.MatchString(`^[a-zA-Z]+$`, Stg)
+    return match
 }
 
 func (h *helper) ValidateDatatype(data, intOrString string) (bool, error) {
