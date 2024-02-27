@@ -69,7 +69,7 @@ func (ad *AdminHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
-	successRes := response.ClientResponse(http.StatusOK, "successfully login", users, nil)
+	successRes := response.ClientResponse(http.StatusOK, "successfully retrieved users", users, nil)
 	c.JSON(http.StatusOK, successRes)
 }
 
@@ -95,7 +95,7 @@ func (ad *AdminHandler) UnBlockUser(c *gin.Context) {
 		return
 	}
 
-	successRes := response.ClientResponse(http.StatusOK, "successfully blocked", nil, nil)
+	successRes := response.ClientResponse(http.StatusOK, "successfully unblocked", nil, nil)
 	c.JSON(http.StatusOK, successRes)
 }
 
