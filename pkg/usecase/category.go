@@ -63,10 +63,6 @@ func (cat *CategoryUseCase) EditCategory(EditCategory models.EditCategory, id in
 		return domain.Category{}, errors.New("category name cannot be empty")
 	}
 
-	if EditCategory.CategoryName == "" {
-		return domain.Category{}, errors.New("category name cannot be empty")
-	}
-
 	exist, err := cat.repo.CheckCategoryExistByID(id)
 	if err != nil {
 		return domain.Category{}, err

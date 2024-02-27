@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ahdaan98/pkg/domain"
+	helper "github.com/ahdaan98/pkg/helper/interfaces"
 	repo "github.com/ahdaan98/pkg/repository/interface"
 	interfaces "github.com/ahdaan98/pkg/usecase/interface"
 	"github.com/ahdaan98/pkg/utils/models"
@@ -11,11 +12,13 @@ import (
 
 type BrandUseCase struct {
 	repo repo.BrandRepository
+	helper helper.Helper
 }
 
-func NewBrandUseCase(repo repo.BrandRepository) interfaces.BrandUseCase {
+func NewBrandUseCase(repo repo.BrandRepository, helper helper.Helper) interfaces.BrandUseCase {
 	return &BrandUseCase{
 		repo: repo,
+		helper: helper,
 	}
 }
 
@@ -23,6 +26,22 @@ func (br *BrandUseCase) AddBrand(Brand models.AddBrand) (domain.Brand, error) {
 	if Brand.BrandName == "" {
 		return domain.Brand{},errors.New("brand name cannot be empty")
 	}
+
+	tr := br.helper.ContainOnlyLetters(Brand.BrandName)
+
+	if !tr {
+		return domain.Brand{}, errors.New("brand name can only contain letters")
+	}
+
+	if len(Brand.BrandName) < 4 {
+		return domain.Brand{}, errors.New("brand name should contain atleast 4 characters")
+	}
+
+	if len(Brand.BrandName) > 6 {
+		return domain.Brand{}, errors.New("brand name can contain upto 6 characters only")
+	}
+
+
 	Exist, err := br.repo.CheckBrandExist(Brand.BrandName)
 	if err != nil {
 		return domain.Brand{}, err
@@ -45,6 +64,7 @@ func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Br
 		return domain.Brand{},errors.New("brand name cannot be empty")
 	}
 
+
 	Exist, err := br.repo.CheckBrandExist(EditBrand.BrandName)
 	if err != nil {
 		return domain.Brand{}, err
@@ -53,6 +73,21 @@ func (br *BrandUseCase) EditBrand(EditBrand models.EditBrand, id int) (domain.Br
 	if Exist {
 		return domain.Brand{}, errors.New("brand already exist")
 	}
+
+	tr := br.helper.ContainOnlyLetters(EditBrand.BrandName)
+
+	if !tr {
+		return domain.Brand{}, errors.New("brand name can only contain letters")
+	}
+
+	if len(EditBrand.BrandName) < 4 {
+		return domain.Brand{}, errors.New("brand name should contain atleast 4 characters")
+	}
+
+	if len(EditBrand.BrandName) > 6 {
+		return domain.Brand{}, errors.New("brand name can contain upto 6 characters only")
+	}
+
 
 	brand, err := br.repo.EditBrand(EditBrand, id)
 	if err != nil {
