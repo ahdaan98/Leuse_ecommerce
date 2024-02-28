@@ -134,8 +134,8 @@ func (cat *CategoryUseCase) DeleteCategory(id int) error {
 	return nil
 }
 
-func (cat *CategoryUseCase) ListCategories(page, per_product int) ([]domain.Category, error) {
-	Categories, err := cat.repo.GetCategories(page, per_product)
+func (cat *CategoryUseCase) ListCategories() ([]domain.Category, error) {
+	Categories, err := cat.repo.GetCategories()
 	if err != nil {
 		return []domain.Category{}, err
 	}

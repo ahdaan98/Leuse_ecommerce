@@ -121,14 +121,13 @@ func (cat *CategoryRepository) GetCategoryByID(id int) (domain.Category, error) 
 	return category,nil
 }
 
-func (cat *CategoryRepository) GetCategories(page, per_product int) ([]domain.Category, error) {
+func (cat *CategoryRepository) GetCategories() ([]domain.Category, error) {
 	var categoryLists []domain.Category
 
-	offset := (page - 1) * per_product
 
-	query := fmt.Sprintf(`
-	SELECT * FROM categories LIMIT %d OFFSET %d
-	`,per_product,offset)
+	query := `
+	SELECT * FROM categories
+	`
 
 	if err := cat.DB.Raw(query).Scan(&categoryLists).Error; err != nil {
 		return []domain.Category{}, err

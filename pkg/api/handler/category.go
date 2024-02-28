@@ -91,11 +91,9 @@ func (ca *CategoryHandler) DeleteCategory(c *gin.Context) {
 }
 
 func (ca *CategoryHandler) GetCategories(c *gin.Context) {
-	page, _ := strconv.Atoi(c.Query("page"))
-	per_product, _ := strconv.Atoi(c.Query("per_product"))
 
 
-	categories, err := ca.usecase.ListCategories(page, per_product)
+	categories, err := ca.usecase.ListCategories()
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusBadRequest, "failed to retrieve all categories...", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)

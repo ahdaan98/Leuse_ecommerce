@@ -12,6 +12,6 @@ type CategoryRepository interface {
 	EditCategory(EditCategory models.EditCategory, id int) (domain.Category, error)
 	GetCategoryByID(id int) (domain.Category, error)
 	DeleteCategory(id int) error
-	GetCategories(page, per_product int) ([]domain.Category, error)
+	GetCategories() ([]domain.Category, error)
 	FilterByCategory(categoryID,page, per_product int) ([]models.FilterByCategoryResponse, string, error)
 }
