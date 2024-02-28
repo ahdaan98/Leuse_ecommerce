@@ -14,6 +14,7 @@ func UserRoutes(engine *gin.RouterGroup, categoryHandler *handler.CategoryHandle
 	engine.POST("/verifyotp", userHandler.VerifyOTP)
 
 	products:=engine.Group("/products")
+	products.GET("/list",inventoryHandler.ListProductsWithImages)
 	products.GET("", inventoryHandler.ListProducts)
 	products.GET("/filter/category",categoryHandler.FilterByCategory)
 	products.GET("/filter/brand",brandHandler.FilterByBrand)
