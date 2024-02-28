@@ -16,7 +16,8 @@ func UserRoutes(engine *gin.RouterGroup, categoryHandler *handler.CategoryHandle
 	products:=engine.Group("/products")
 	products.GET("/list",inventoryHandler.ListProductsWithImages)
 	products.GET("", inventoryHandler.ListProducts)
-	products.GET("/filter/category",categoryHandler.FilterByCategory)
+	engine.GET("/categories/filter", categoryHandler.FilterByCategory)
+	engine.GET("/brands/filter", brandHandler.FilterByBrand)
 	products.GET("/filter/brand",brandHandler.FilterByBrand)
 
 	engine.GET("/payment", paymentHandler.MakePaymentRazorpay) // Update this route
