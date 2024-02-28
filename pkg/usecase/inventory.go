@@ -46,7 +46,7 @@ func (i *InventoryUseCase) ListProducts(page, per_product int) ([]models.Invento
 }
 
 func (i *InventoryUseCase) EditInventory(inventory models.EditInventory, id int) (models.InventoryResponse, error) {
-	if inventory.BrandID <= 0 || inventory.CategoryID <= 0 || inventory.Price <= 0 || id <=0 {
+	if inventory.BrandID <= 0 || inventory.CategoryID <= 0 || inventory.Price <= 0 || id <= 0 {
 		return models.InventoryResponse{}, errors.New("check values properly, id cannot be negative or zero")
 	}
 	Exist, err := i.repository.CheckInventoryExist(inventory.ProductName)
@@ -76,8 +76,8 @@ func (i *InventoryUseCase) EditInventory(inventory models.EditInventory, id int)
 }
 
 func (i *InventoryUseCase) UpdateInventory(inventory models.UpdateInventory, id int) (models.InventoryResponse, error) {
-	if inventory.Stock <= 0 || id <= 0{
-		return models.InventoryResponse{},errors.New("check values properly, value cannot be negative or zero")
+	if inventory.Stock <= 0 || id <= 0 {
+		return models.InventoryResponse{}, errors.New("check values properly, value cannot be negative or zero")
 	}
 
 	Exist, err := i.repository.CheckInventoryExistByID(id)
@@ -116,10 +116,10 @@ func (i *InventoryUseCase) ShowIndividualProduct(productID int) (models.Inventor
 }
 
 func (i *InventoryUseCase) CheckStock(productID int) (models.CheckStockResponse, error) {
-	if productID <= 0{
-		return models.CheckStockResponse{},errors.New("check value properly, it cannot be negative or zero")
+	if productID <= 0 {
+		return models.CheckStockResponse{}, errors.New("check value properly, it cannot be negative or zero")
 	}
-	
+
 	Exist, err := i.repository.CheckInventoryExistByID(productID)
 	if err != nil {
 		return models.CheckStockResponse{}, err
@@ -141,9 +141,14 @@ func (i *InventoryUseCase) AddImage(id int, image string) error {
 	return i.repository.UploadImage(id, image)
 }
 
-func (uc *InventoryUseCase) ListProductsWithImages() ([]models.InventoryResponseWithImages, error) {
+func (uc *InventoryUseCase) ListProductsWithImages(page, per_product int) ([]models.InventoryResponseWithImages, error) {
 	cfg, _ := config.LoadEnvVariables()
-	productList, err := uc.repository.ListProductsWithImages()
+
+	if page <= 0 || per_product <= 0 {
+		return []models.InventoryResponseWithImages{}, errors.New("check values properly, it cannot be negative or zero")
+	}
+
+	productList, err := uc.repository.ListProductsWithImages(page,per_product)
 	if err != nil {
 		return nil, err
 	}

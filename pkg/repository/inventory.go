@@ -179,16 +179,19 @@ func (inv *InventoryRepostiory) CheckStock(productID int) (models.CheckStockResp
 	return stockResponse, nil
 }
 
-func (inv *InventoryRepostiory) ListProductsWithImages() ([]models.InventoryResponse, error) {
+func (inv *InventoryRepostiory) ListProductsWithImages(page, per_product int) ([]models.InventoryResponse, error) {
 	var products []models.InventoryResponse
 
-	query := `
+	offset := (page - 1) * per_product
+
+	query := fmt.Sprintf(`
         SELECT i.id AS product_id, i.product_name, i.category_id, c.category_name AS category, 
                i.brand_id, b.brand_name AS brand, i.stock, i.price
         FROM inventories i
         INNER JOIN categories c ON i.category_id = c.id
         INNER JOIN brands b ON i.brand_id = b.id
-    `
+		LIMIT %d OFFSET %d
+    `,per_product,offset)
 
 	err := inv.DB.Raw(query).Scan(&products).Error
 	if err != nil {

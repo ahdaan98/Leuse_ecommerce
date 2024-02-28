@@ -15,6 +15,6 @@ type InventoryRepository interface {
 	CheckStock(productID int) (models.CheckStockResponse, error)
 
 	UploadImage(id int, image string) error
-	ListProductsWithImages() ([]models.InventoryResponse, error)
+	ListProductsWithImages(page, per_product int) ([]models.InventoryResponse, error)
 	GetImages(productID int) ([]string,error) 
 }

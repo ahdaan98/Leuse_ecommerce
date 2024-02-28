@@ -168,7 +168,10 @@ func (a *InventoryHandler) UploadProductImage(c *gin.Context) {
 }
 
 func (h *InventoryHandler) ListProductsWithImages(c *gin.Context) {
-    productList, err := h.usecase.ListProductsWithImages()
+	page, _ := strconv.Atoi(c.Query("page"))
+	per_product, _ := strconv.Atoi(c.Query("per_product"))
+	
+    productList, err := h.usecase.ListProductsWithImages(page, per_product)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{
             "error": err.Error(),

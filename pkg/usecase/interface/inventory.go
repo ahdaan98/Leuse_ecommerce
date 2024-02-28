@@ -11,5 +11,5 @@ type InventoryUseCase interface {
 	CheckStock(productID int) (models.CheckStockResponse, error)
 
 	AddImage(id int, image string) error
-	ListProductsWithImages() ([]models.InventoryResponseWithImages, error)
+	ListProductsWithImages(page, per_product int) ([]models.InventoryResponseWithImages, error)
 }
