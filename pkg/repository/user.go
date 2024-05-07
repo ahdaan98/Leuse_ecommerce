@@ -21,19 +21,17 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 
 func (i *userDatabase) CreateUser(user models.UserSignUp) (models.UserDetailsResponse, error) {
 	var resp models.UserDetailsResponse
-	query := `
-	INSERT INTO users (name,email,password,phone) VALUES (?,?,?,?) RETURNING id, name, email, phone
-	`
+	query := `INSERT INTO users (name, email, password, phone) VALUES (?,?,?,?) RETURNING id, name, email, phone`
 
 	if err := i.DB.Raw(query, user.Name, user.Email, user.Password, user.Phone).Scan(&resp).Error; err != nil {
 		return models.UserDetailsResponse{}, err
 	}
 
 	// create wallet
-	err := i.DB.Exec("INSERT INTO wallets (user_id, amount) VALUES (?, ?)", resp.Id, 0).Error
-	if err != nil {
-		return models.UserDetailsResponse{}, err
-	}
+	// err := i.DB.Exec("INSERT INTO wallets (user_id, amount) VALUES (?, ?)", resp.Id, 0).Error
+	// if err != nil {
+	// 	return models.UserDetailsResponse{}, err
+	// }
 
 	return resp, nil
 }
