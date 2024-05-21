@@ -2,7 +2,7 @@
 // Source: C:\Users\ahdaa\GOLANG\Leuse_Ecommerce\pkg\repository\interface\user.go
 
 // Package mock_interfaces is a generated GoMock package.
-package mock_interfaces
+package mocks
 
 import (
 	reflect "reflect"
