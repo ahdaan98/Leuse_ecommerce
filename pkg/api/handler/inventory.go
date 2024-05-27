@@ -108,7 +108,7 @@ func (i *InventoryHandler) ShowIndividualProduct(c *gin.Context) {
 		return
 	}
 
-	successRes := response.ClientResponse(http.StatusOK, "sucessfully retrieved the product by id", inv, nil)
+	successRes := response.ClientResponse(http.StatusOK, "successfully retrieved the product by id", inv, nil)
 	c.JSON(http.StatusOK, successRes)
 }
 
