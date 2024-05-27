@@ -47,6 +47,7 @@ require (
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
+	github.com/go-playground/assert v1.2.1
 	github.com/go-playground/assert/v2 v2.2.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/wire v0.6.0
