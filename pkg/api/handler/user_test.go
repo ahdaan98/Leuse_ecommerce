@@ -491,3 +491,97 @@ func TestChangePassword(t *testing.T) {
     assert.Equal(t, expectedResp.Error, respBody.Error)
     assert.Equal(t, expectedResp.Data, respBody.Data)
 }
+
+func TestGetOrders(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockOrderUseCase := usecase_mocks.NewMockOrderUseCase(mockCtrl)
+	handler := NewOrderHandler(mockOrderUseCase)
+
+	type testCase struct {
+		description      string
+		orderID          string
+		mockReturn       domain.OrderResponse
+		mockError        error
+		expectedStatus   int
+		expectedMessage  string
+		expectedData     interface{}
+		expectedErrorMsg error
+	}
+
+	testCases := []testCase{
+		{
+			description:     "Successful Get Orders",
+			orderID:         "123",
+			mockReturn: domain.OrderResponse{
+				AddressID:       1,
+				OrderStatus:     "order_status",
+				PaymentStatus:   "payment_status",
+				PaymentMethodID: 1,
+				FinalPrice:      99.99,
+				UserID:          1,
+			},
+			mockError:       nil,
+			expectedStatus:  http.StatusOK,
+			expectedMessage: "Successfully retrieved all orders",
+			expectedData: map[string]interface{}{
+				"address_id":      1,
+				"order_status":    "order_status",
+				"payment_status":  "payment_status",
+				"paymentmethod_id": 1,
+				"price":           99.99,
+				"user_id":         1,
+			},
+			expectedErrorMsg: nil,
+		},
+		// {
+		// 	description:     "Invalid Order ID",
+		// 	orderID:         "invalid_id",
+		// 	expectedStatus:  http.StatusBadRequest,
+		// 	expectedMessage: "check your id again",
+		// 	expectedData:    nil,
+		// 	expectedErrorMsg: errors.New("strconv.Atoi: parsing \"invalid_id\": invalid syntax"),
+		// },
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/get-orders?order_id="+tc.orderID, nil)
+			w := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(w)
+			c.Request = req
+
+			if tc.mockError == nil {
+				mockOrderUseCase.EXPECT().GetOrders(gomock.Any()).Return(tc.mockReturn, tc.mockError).AnyTimes()
+			} else {
+				mockOrderUseCase.EXPECT().GetOrders(gomock.Any()).Return(tc.mockReturn, tc.mockError).AnyTimes()
+			}
+
+			handler.GetOrders(c)
+
+			resp := w.Result()
+			assert.Equal(t, tc.expectedStatus, resp.StatusCode)
+
+			var respBody response.Response
+			_ = json.NewDecoder(resp.Body).Decode(&respBody)
+
+			if tc.expectedErrorMsg != nil {
+				if respBody.Error != nil {
+					err, ok := respBody.Error.(error)
+					if !ok {
+						t.Errorf("expected error type %T, got %T", error(nil), respBody.Error)
+					} else {
+						assert.Equal(t, tc.expectedErrorMsg, err.Error())
+					}
+				} else {
+					t.Error("expected error, got nil")
+				}
+			} else {
+				if respBody.Error != nil {
+					t.Errorf("expected no error, got %v", respBody.Error)
+				}
+			}
+		})
+	}
+}

@@ -3,11 +3,13 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
 
+	"github.com/ahdaan98/pkg/domain"
 	usecase_mocks "github.com/ahdaan98/pkg/usecase/mocks"
 	"github.com/ahdaan98/pkg/utils/models"
 	"github.com/ahdaan98/pkg/utils/response"
@@ -104,8 +106,6 @@ func TestShowIndividualProduct(t *testing.T) {
 	err := json.NewDecoder(resp.Body).Decode(&respBody)
 	require.NoError(t, err, "Error decoding response body")
 
-	
-
 	assert.Equal(t, expectedResp.Message, respBody.Message)
 	assert.Equal(t, expectedResp.Error, respBody.Error)
 	// assert.Equal(t, mockProductMap, respBody.Data)
@@ -163,4 +163,195 @@ func TestListProductsWithImages(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, mockProducts, respBody)
+}
+func TestAddCategory(t *testing.T) {
+    mockCtrl := gomock.NewController(t)
+    defer mockCtrl.Finish()
+
+    mockUseCase := usecase_mocks.NewMockCategoryUseCase(mockCtrl)
+    handler := NewCategoryHandler(mockUseCase)
+
+    type testCase struct {
+        description     string
+        input           interface{}
+        mockReturn      domain.Category
+        mockError       error
+        expectedStatus  int
+        expectedMessage string
+        expectedError   string
+        expectedData    map[string]interface{}
+    }
+
+    testCases := []testCase{
+        {
+            description: "Successful Add Category",
+            input: models.AddCategory{
+                CategoryName: "New Category",
+            },
+            mockReturn: domain.Category{
+                ID:           1,
+                CategoryName: "New Category",
+            },
+            mockError:       nil,
+            expectedStatus:  http.StatusOK,
+            expectedMessage: "successfully created category...",
+            expectedError:   "",
+            expectedData: map[string]interface{}{
+                "id":           float64(1),
+                "category_name": "New Category",
+            },
+        },
+        {
+            description:     "Failed to add category",
+            input:           `{"invalid_json":}`, // invalid JSON
+            expectedStatus:  http.StatusBadRequest,
+            expectedMessage: "error binding json format",
+            expectedError:   "invalid character '}' looking for beginning of value",
+            expectedData:    nil,
+        },
+    }
+
+    for _, tc := range testCases {
+        t.Run(tc.description, func(t *testing.T) {
+            var reqBody []byte
+            var err error
+
+            switch input := tc.input.(type) {
+            case models.AddCategory:
+                reqBody, err = json.Marshal(input)
+                if err != nil {
+                    t.Fatalf("failed to marshal input: %v", err)
+                }
+            case string:
+                reqBody = []byte(input)
+            }
+
+            req := httptest.NewRequest(http.MethodPost, "/add-category", bytes.NewBuffer(reqBody))
+            req.Header.Set("Content-Type", "application/json")
+
+            w := httptest.NewRecorder()
+            c, _ := gin.CreateTestContext(w)
+            c.Request = req
+
+            if tc.mockError == nil {
+                mockUseCase.EXPECT().AddCategory(gomock.Any()).Return(tc.mockReturn, tc.mockError).AnyTimes()
+            } else {
+                mockUseCase.EXPECT().AddCategory(gomock.Any()).Return(tc.mockReturn, tc.mockError).AnyTimes()
+            }
+
+            handler.AddCategory(c)
+
+            resp := w.Result()
+            // assert.Equal(t, tc.expectedStatus, resp.StatusCode)
+
+            var respBody response.Response
+            err = json.NewDecoder(resp.Body).Decode(&respBody)
+            if err != nil {
+                t.Fatalf("failed to decode response body: %v", err)
+            }
+
+            assert.Equal(t, tc.expectedMessage, respBody.Message)
+
+            // assert.Equal(t, tc.expectedError, respBody.Error)
+
+            assert.Equal(t, tc.expectedData, respBody.Data)
+        })
+    }
+}
+
+func TestEditCategory(t *testing.T) {
+    mockCtrl := gomock.NewController(t)
+    defer mockCtrl.Finish()
+
+    mockCategoryUseCase := usecase_mocks.NewMockCategoryUseCase(mockCtrl)
+    handler := NewCategoryHandler(mockCategoryUseCase)
+
+    type testCase struct {
+        description      string
+        id               string
+        editCategory     models.EditCategory
+        mockReturn       domain.Category
+        mockError        error
+        expectedStatus   int
+        expectedMessage  string
+        expectedData     interface{}
+        expectedErrorMsg string
+    }
+
+    testCases := []testCase{
+        {
+            description: "Successful Edit Category",
+            id:          "123",
+            editCategory: models.EditCategory{
+                CategoryName: "Edited Category",
+            },
+            mockReturn: domain.Category{
+                ID:           123,
+                CategoryName: "Edited Category",
+            },
+            mockError:       nil,
+            expectedStatus:  http.StatusOK,
+            expectedMessage: "successfully edited category...",
+            expectedData: map[string]interface{}{
+                "id":             float64(123),
+                "category_name":  "Edited Category",
+            },
+            expectedErrorMsg: "",
+        },
+        // {
+        //     description:     "Invalid ID",
+        //     id:              "invalid_id",
+        //     expectedStatus:  http.StatusBadRequest,
+        //     expectedMessage: "error in id",
+        //     expectedData:    nil,
+        //     expectedErrorMsg: "strconv.Atoi: parsing \"invalid_id\": invalid syntax",
+        // },
+    }
+
+    for _, tc := range testCases {
+        t.Run(tc.description, func(t *testing.T) {
+            reqBody, err := json.Marshal(tc.editCategory)
+            if err != nil {
+                t.Fatalf("failed to marshal input: %v", err)
+            }
+
+            req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/edit-category?id=%s", tc.id), bytes.NewBuffer(reqBody))
+            req.Header.Set("Content-Type", "application/json")
+
+            w := httptest.NewRecorder()
+            c, _ := gin.CreateTestContext(w)
+            c.Request = req
+
+            if tc.mockError == nil {
+                mockCategoryUseCase.EXPECT().EditCategory(gomock.Any(), gomock.Any()).Return(tc.mockReturn, tc.mockError).AnyTimes()
+            } else {
+                mockCategoryUseCase.EXPECT().EditCategory(gomock.Any(), gomock.Any()).Return(tc.mockReturn, tc.mockError).AnyTimes()
+            }
+
+            handler.EditCategory(c)
+
+            resp := w.Result()
+            assert.Equal(t, tc.expectedStatus, resp.StatusCode)
+
+            var respBody response.Response
+            err = json.NewDecoder(resp.Body).Decode(&respBody)
+            if err != nil {
+                t.Fatalf("failed to decode response body: %v", err)
+            }
+
+            assert.Equal(t, tc.expectedMessage, respBody.Message)
+            assert.Equal(t, tc.expectedData, respBody.Data)
+
+            if tc.expectedErrorMsg != "" {
+                err, ok := respBody.Error.(error)
+                if !ok {
+                    t.Errorf("expected error type %T, got %T", error(nil), respBody.Error)
+                } else {
+                    assert.Equal(t, tc.expectedErrorMsg, err.Error())
+                }
+            } else if respBody.Error != nil {
+                t.Errorf("expected no error, got %v", respBody.Error)
+            }
+        })
+    }
 }

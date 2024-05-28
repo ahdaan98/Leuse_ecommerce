@@ -36,7 +36,7 @@ func (ca *CategoryHandler) AddCategory(c *gin.Context) {
 		return
 	}
 
-	successRes := response.ClientResponse(http.StatusOK, "successfully created brand...", Category, nil)
+	successRes := response.ClientResponse(http.StatusOK, "successfully created category...", Category, nil)
 	c.JSON(http.StatusOK, successRes)
 }
 
